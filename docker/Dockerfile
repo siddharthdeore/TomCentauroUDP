@@ -20,10 +20,11 @@ WORKDIR /home/user/tom_ws/src
 RUN echo 1 && git clone https://github.com/advrhumanoids/tomcentauroudp.git --branch dual_arm_2023 tom_centauro_udp
 
 WORKDIR /home/user/tom_ws/ros_src 
-RUN git clone https://github.com/advrhumanoids/iit-inail2arm-ros-pkg.git --branch dual_arm
+RUN git clone https://github.com/siddharthdeore/iit-inail2arm-ros-pkg.git --branch dual_arm_fix
 
 WORKDIR /home/user/tom_ws
 RUN forest add-recipes git@github.com:advrhumanoids/multidof_recipes.git --tag master 
 RUN forest grow tom_centauro_udp -j4
 RUN forest grow iit-dagana-ros-pkg -j4
 
+RUN set_xbot2_config ~/tom_ws/ros_src/iit-inail2arm-ros-pkg/inail2arm_config/inail2_dual_arm.yaml
