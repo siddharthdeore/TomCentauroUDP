@@ -35,6 +35,17 @@ target_include_directories(${PROJECT_NAME}_client_ros
 target_link_libraries(${PROJECT_NAME}_client_ros
     PRIVATE ${roscpp_LIBRARIES} udp_server Eigen3::Eigen)
 
+
+# test client
+add_executable(${PROJECT_NAME}_client
+    src/udp_client.cpp)
+
+target_include_directories(${PROJECT_NAME}_client
+    PRIVATE ${roscpp_INCLUDE_DIRS})
+
+target_link_libraries(${PROJECT_NAME}_client
+    PRIVATE ${roscpp_LIBRARIES} udp_server Eigen3::Eigen)
+
 # test ros velocity client
 add_executable(${PROJECT_NAME}_client_velocity_ros
     src/udp_client_velocity_ros.cpp)
@@ -81,5 +92,6 @@ endif()
 install(TARGETS
     ${PROJECT_NAME}_server_ros
     ${PROJECT_NAME}_client_ros
+    ${PROJECT_NAME}_client
     ${PROJECT_NAME}_client_velocity_ros
     DESTINATION bin)
