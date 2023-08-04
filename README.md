@@ -72,3 +72,10 @@ forest add-recipes git@github.com:advrhumanoids/multidof_recipes.git --tag maste
 forest grow tom_centauro_udp -j4
 forest grow iit-dagana-ros-pkg -j4
 ```
+
+# Attention
+Current XBot2's `xbot2-core  version: 2.11.0 (afcf13a (2023-06-22 14:36:08 +0200))` ik_plugin  links moveit libraries 1.1.12 but standard moveit installs 1.1.13 , so required libraries are copied from docker container to `/opt/ros/noetic/lib` directory, this is temporary workaround
+
+# Important Notice
+
+Regarding XBot2, please take note that the current version of `xbot2-core` is `2.11.0`, with the identifier `afcf13a` dated June 22, 2023, at 14:36:08 (GMT+2). The ik_plugin links to moveit libraries version `1.1.12`. However, standard Moveit installations use version `1.1.13`. As a temporary workaround, the necessary libraries are copied from the docker container to the `/opt/ros/noetic/lib` directory.
