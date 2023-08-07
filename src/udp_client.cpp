@@ -16,7 +16,7 @@ int main(int argc, char **argv)
 {
     signal(SIGINT, exit_handle);
 
-    std::string addr = "127.0.0.1";
+    std::string addr = "192.168.10.101";
     int port = 8081;
 
     std::string ee_id = "left_ee";
