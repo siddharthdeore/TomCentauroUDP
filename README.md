@@ -73,8 +73,6 @@ forest grow tom_centauro_udp -j4
 forest grow iit-dagana-ros-pkg -j4
 ```
 
-# Attention
-Current XBot2's `xbot2-core  version: 2.11.0 (afcf13a (2023-06-22 14:36:08 +0200))` ik_plugin  links moveit libraries 1.1.12 but standard moveit installs 1.1.13 , so required libraries are copied from docker container to `/opt/ros/noetic/lib` directory, this is temporary workaround
 
 # Important Notice
 
