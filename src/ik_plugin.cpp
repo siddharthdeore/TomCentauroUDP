@@ -23,12 +23,14 @@ bool IkPlugin::on_initialize()
 
     _ci->update(0, 0);
 
+    // 0.0 is close, 1.3 is open if refering to  _claw_joint
+    _gripper_map.emplace(std::pair<std::string,double>("dagana_1_claw_joint", 0.0));
+    _gripper_map.emplace(std::pair<std::string,double>("dagana_2_claw_joint", 0.0));
     // detect cartesian tasks
     auto to_cartesian = [](auto t)
     {
         return std::dynamic_pointer_cast<CartesianTask>(t);
     };
-
     for(auto tname : _ci->getTaskList())
     {
         auto t = _ci->getTask(tname);
@@ -68,6 +70,30 @@ bool IkPlugin::on_initialize()
 
         subscribe<Eigen::Affine3d>(fmt::format("~/{}/command", tname),
                                    sub_ref_fn,
+                                   1,
+                                   &_queue);
+        
+        // ugly workaround for gripper data communication from udp_server to ik_plugin
+        auto sub_grp_fn = [this,cart](const Eigen::Affine3d& msg)
+        {
+            double val = std::max(0.0, std::min(0.5-msg.translation().x(), 1.0))*1.5;
+            
+            jinfo("{} received gripper pose: {}", cart->getName(), val);
+            
+            if(cart->getName() == "left_ee")
+            {
+                _gripper_map["dagana_1_claw_joint"] = val;
+            }
+            else
+            {
+                _gripper_map["dagana_2_claw_joint"] = val;
+            }
+            
+            _model->setJointPosition(_gripper_map);
+        };
+        // subscriber for gripper command
+        subscribe<Eigen::Affine3d>(fmt::format("~/{}/gripper/command", tname),
+                                   sub_grp_fn,
                                    1,
                                    &_queue);
 

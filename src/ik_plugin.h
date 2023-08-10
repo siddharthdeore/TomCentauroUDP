@@ -34,7 +34,8 @@ private:
 
     JointIdMap _qmap;
     Eigen::VectorXd _q, _qdot;
-
+    
+    XBot::JointNameMap _gripper_map;
 
 };
 

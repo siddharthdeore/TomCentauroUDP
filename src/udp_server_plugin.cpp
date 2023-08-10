@@ -110,6 +110,8 @@ void UdpServerPlugin::run()
 
     // retrieve or create publisher and subscriber
     CommmandPublisherPtr pub;
+    // subscirber for XBot::PublisherPtr<double> did't work!!!
+    CommmandPublisherPtr gripper_pub;
 
     {
         auto pub_it = _ee_pubs.find(ee_id);
@@ -121,11 +123,15 @@ void UdpServerPlugin::run()
             pub = advertise<Eigen::Affine3d>("/ik_plugin/" + ee_id + "/command");
 
             _ee_pubs[ee_id] = pub;
+            gripper_pub = advertise<Eigen::Affine3d>("/ik_plugin/" + ee_id + "/gripper/command");
+
+            _gripper_pubs[ee_id] = gripper_pub;
 
         }
         else
         {
             pub = pub_it->second;
+            gripper_pub = _gripper_pubs[ee_id];
         }
     }
 
@@ -176,12 +182,11 @@ void UdpServerPlugin::run()
                                             pose);
 
         pub->publish(pose);
-
         // gripper (TODO)
-        //        sensor_msgs::JointState msg;
-        //        msg.name = {"gripper_joint"};
-        //        msg.position = {clamp(packet_to_robot.gripper_pos)};
-        //        gripper_pub.publish(msg);
+        Eigen::Affine3d aux;
+        aux.translation().x() = packet_to_robot.gripper_pos;
+        gripper_pub->publish(aux);
+        
     }
 }
 
