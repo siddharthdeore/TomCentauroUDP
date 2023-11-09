@@ -31,7 +31,7 @@ private:
     std::map<std::string, SubscriberPtr<Eigen::Affine3d>> _ee_subs;
 
     std::map<std::string, CommmandPublisherPtr> _ee_pubs;
-    std::map<std::string, CommmandPublisherPtr> _gripper_pubs;
+    std::map<std::string, GripperPublisherPtr> _gripper_pubs;
 
     std::map<std::string, Eigen::Affine3d> _ee_state;
 

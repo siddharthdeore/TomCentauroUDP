@@ -60,10 +60,10 @@ bool IkPlugin::on_initialize()
         // define command subscriber callback
         auto sub_ref_fn = [this, cart](const Eigen::Affine3d& msg)
         {
-//            jinfo("{} received pose: {} {}",
-//                  cart->getName(),
-//                  msg.translation().transpose(),
-//                  Eigen::Quaterniond(msg.linear()).coeffs().transpose());
+            // jinfo("{} received pose: {} {}",
+            //         cart->getName(),
+            //         msg.translation().transpose(),
+            //         Eigen::Quaterniond(msg.linear()).coeffs().transpose());
 
             cart->setPoseReference(msg);
         };
@@ -73,10 +73,10 @@ bool IkPlugin::on_initialize()
                                    1,
                                    &_queue);
         
-        // ugly workaround for gripper data communication from udp_server to ik_plugin
-        auto sub_grp_fn = [this,cart](const Eigen::Affine3d& msg)
+        // workaround for gripper data communication from udp_server to ik_plugin
+        auto sub_grp_fn = [this,cart](const double& msg)
         {
-            double val = std::max(0.0, std::min(0.5-msg.translation().x(), 1.0))*1.5;
+            double val = std::max(0.0, std::min(0.5-msg, 1.0))*1.5;
             
             jinfo("{} received gripper pose: {}", cart->getName(), val);
             
@@ -92,7 +92,7 @@ bool IkPlugin::on_initialize()
             _model->setJointPosition(_gripper_map);
         };
         // subscriber for gripper command
-        subscribe<Eigen::Affine3d>(fmt::format("~/{}/gripper/command", tname),
+        subscribe<double>(fmt::format("~/{}/gripper/command", tname),
                                    sub_grp_fn,
                                    1,
                                    &_queue);
