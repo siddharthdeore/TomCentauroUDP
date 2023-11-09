@@ -72,7 +72,7 @@ bool IkPlugin::on_initialize()
                                    sub_ref_fn,
                                    1,
                                    &_queue);
-        
+	
         // workaround for gripper data communication from udp_server to ik_plugin
         auto sub_grp_fn = [this,cart](const double& msg)
         {
