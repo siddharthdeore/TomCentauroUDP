@@ -16,11 +16,32 @@ bool UdpServerPlugin::on_initialize()
 
     // subscribe to ik heartbeat
     _heartbeat_sub = subscribe<bool>("/ik_plugin/heartbeat",
-
         [this](const bool& msg)
         {
             _last_heartbeat_recv_time = chrono::steady_clock::now();
         }, 1, &_queue);
+
+    // detect heri hands and save them to heri mapw 
+    auto heri_container = _robot->getDevices<Hal::HandEc>();
+
+    if(!heri_container.empty())
+    {
+        for(int i=0; i < heri_container.size();i++)
+        {
+            auto ec_hand = heri_container.get_device_vector()[i];
+
+            jinfo("detected hand {}", ec_hand->get_name());
+            
+            _heri_map[ec_hand->get_name()] = ec_hand;
+        }
+        _heri2_detected.store(true);
+
+    }
+    else
+    {
+        _heri2_detected.store(false);
+	    jinfo("no hand was detected");
+    }
 
     return true;
 }
@@ -78,7 +99,8 @@ void UdpServerPlugin::run()
     _nmsgs++;
 
     // consume queue
-    while(_srv.try_receive(packet_to_robot))
+    //while(_srv.try_receive(packet_to_robot))
+    if(_srv.try_receive(packet_to_robot))
     {
         _nmsgs++;
     }
@@ -104,13 +126,13 @@ void UdpServerPlugin::run()
     }
 
 
-
     // get end effector name
     std::string ee_id = packet_to_robot.ee_id;
 
     // retrieve or create publisher and subscriber
     CommmandPublisherPtr pub;
-    // subscirber for XBot::PublisherPtr<double> did't work!!!
+
+    // subscriber for XBot::PublisherPtr<double> did't work!!!
     GripperPublisherPtr gripper_pub;
 
     {
@@ -155,6 +177,7 @@ void UdpServerPlugin::run()
     // reply to client with current reference if we got one
     tom_centauro_udp::packet::slave2master packet_to_teleop;
 
+
     auto ref_it = _ee_state.find(ee_id);
 
     if(ref_it != _ee_state.end())
@@ -185,11 +208,61 @@ void UdpServerPlugin::run()
         // gripper (TODO)
         gripper_pub->publish(packet_to_robot.gripper_pos);
         
+
+        if(_heri2_detected.load())
+        {
+            // just print hand values
+            // for(const auto& [heri_name, heri_ptr] : _heri_map)
+            // {
+            //     heri_ptr->sense();
+            //     // jinfo("heri '{}' motor_pos = {} motor_pos_2 = {}", heri_name, heri_ptr->get_motor_pos(), heri_ptr->get_motor_pos_2());
+            // }
+            const auto heri_1 =_heri_map["heri2_1"];
+            const auto heri_2 =_heri_map["heri2_2"];
+
+            heri_1->sense();
+            heri_2->sense();
+
+            packet_to_teleop.heri_finger_pos[0] = heri_1->get_motor_pos();   // third
+            packet_to_teleop.heri_finger_pos[1] = heri_1->get_motor_pos_2(); // middle
+            packet_to_teleop.heri_finger_pos[2] = heri_2->get_motor_pos();   // thumb
+            packet_to_teleop.heri_finger_pos[3] = heri_2->get_motor_pos_2(); // index
+
+            packet_to_teleop.heri_finger_pressure[0] = (heri_1->get_m1_an_1() + heri_1->get_m1_an_2() + heri_1->get_m1_an_3())/3;
+            packet_to_teleop.heri_finger_pressure[1] = (heri_1->get_m2_an_1() + heri_1->get_m2_an_2() + heri_1->get_m2_an_3())/3;
+            packet_to_teleop.heri_finger_pressure[2] = (heri_2->get_m1_an_1() + heri_2->get_m1_an_2() + heri_2->get_m1_an_3())/3;
+            packet_to_teleop.heri_finger_pressure[3] = (heri_2->get_m2_an_1() + heri_2->get_m2_an_2() + heri_2->get_m2_an_3())/3;
+
+            // set finger position refrence
+            heri_1->set_pos_ref(packet_to_robot.heri_finger_pos[0]*2.0f);   // third
+            heri_1->set_pos_ref_2(packet_to_robot.heri_finger_pos[1]*2.0f); // middle
+            heri_2->set_pos_ref(packet_to_robot.heri_finger_pos[2]*2.0f);   // thumb
+            heri_2->set_pos_ref_2(packet_to_robot.heri_finger_pos[3]*2.0f); // index
+
+            //jinfo("{} {} {} {}",packet_to_robot.heri_finger_pos[0],packet_to_robot.heri_finger_pos[1],packet_to_robot.heri_finger_pos[2],packet_to_robot.heri_finger_pos[3]);
+
+            // move fingers to desired position
+            heri_1->move();
+            heri_2->move();
+
+        }
     }
 }
 
 void UdpServerPlugin::on_stop()
 {
+
+    for(const auto& [heri_name, heri_ptr] : _heri_map)
+    {
+        heri_ptr->set_pos_ref(0.0);
+        heri_ptr->set_pos_ref_2(0.0);
+        heri_ptr->move();
+    }
+        // stop ik
+    if(!sendCommand("ik_plugin", Command::Stop))
+    {
+        jerror("could not stop ik plugin");
+    }
 }
 
 XBOT2_REGISTER_PLUGIN(UdpServerPlugin, tom_centauro_udp_server);

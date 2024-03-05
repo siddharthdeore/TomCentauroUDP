@@ -9,7 +9,8 @@ namespace tom_centauro_udp { namespace packet {
 /**
  * @brief Command from master (teleop device) to slave (robot)
  */
-struct __attribute__((packed)) master2slave
+// struct __attribute__((packed)) master2slave
+struct master2slave
 {
     float timer_master = 0;
     float timer_slave = 0;
@@ -31,6 +32,8 @@ struct __attribute__((packed)) master2slave
     // hand command (desired pos, desired force?)
     float gripper_pos = 0;
     float gripper_force = 0;
+    // heri hand command
+    float heri_finger_pos[4] = {0.0f,0.0f,0.0f,0.0f};
     
     // velocity commands
     bool jst_button[3];  // used for what ?
@@ -49,7 +52,8 @@ struct __attribute__((packed)) master2slave
 /**
  * @brief Feedback from robot
  */
-struct __attribute__((packed)) slave2master
+// struct __attribute__((packed)) slave2master
+struct slave2master
 {
     float timer_master;
     float timer_slave;
@@ -67,6 +71,9 @@ struct __attribute__((packed)) slave2master
     // hand feedback
     float gripper_pos;
     float gripper_force;
+    // heri hand feedback
+    float heri_finger_pos[4] = {0.0f,0.0f,0.0f,0.0f};
+    uint32_t heri_finger_pressure[4] = {0};
 
 
     // jostick commands

@@ -21,13 +21,13 @@ bool check_pkt_valid(const packet::master2slave& pkt)
         return true;
     }
 
-    if(std::fabs(pkt.vel_xy[0]) > 1.0 ||
-        std::fabs(pkt.vel_xy[1]) > 1.0 ||
-        std::fabs(pkt.vel_yaw) > 1.0)
-    {
-        printf("invalid vel command (out of range) \n");
-        return false;
-    }
+    // if(std::fabs(pkt.vel_xy[0]) > 1.0 ||
+    //     std::fabs(pkt.vel_xy[1]) > 1.0 ||
+    //     std::fabs(pkt.vel_yaw) > 1.0)
+    // {
+    //     printf("invalid vel command (out of range) \n");
+    //     return false;
+    // }
 
     float quat_norm = Eigen::Vector4f::Map(pkt.rotation).norm();
 

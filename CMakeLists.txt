@@ -6,6 +6,7 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 find_package(catkin REQUIRED)
 find_package(roscpp REQUIRED)
 find_package(Eigen3 REQUIRED)
+find_package(ec_xbot2_interfaces REQUIRED)
 
 catkin_package()
 
@@ -82,7 +83,7 @@ if(${xbot2_FOUND})
 
     target_link_libraries(${PROJECT_NAME}_ik PRIVATE cartesian_interface::CartesianInterface )
 
-    target_link_libraries(${PROJECT_NAME}_udp_server PRIVATE udp_server)
+    target_link_libraries(${PROJECT_NAME}_udp_server PRIVATE udp_server ec_xbot2_interfaces::ec_xbot2_interfaces)
 
     install(TARGETS ${PROJECT_NAME}_udp_server ${PROJECT_NAME}_ik
         DESTINATION lib)

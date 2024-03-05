@@ -6,6 +6,8 @@
 #include "udp_server.h"
 #include "tom_centauro_udp/packet/packet_ros_utils.hpp"
 
+#include <ec_xbot2/hand_ec.h>
+
 using namespace XBot;
 
 class UdpServerPlugin : public XBot::ControlPlugin
@@ -41,6 +43,10 @@ private:
 
     chrono::steady_clock::time_point _start_time;
     chrono::steady_clock::time_point _last_heartbeat_recv_time;
+
+    // heri hand
+    std::map<std::string, std::shared_ptr<Hal::HandEc>> _heri_map;
+    std::atomic<bool> _heri2_detected;
 };
 
 #endif // UDP_SERVER_PLUGIN_H

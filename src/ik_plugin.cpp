@@ -80,16 +80,16 @@ bool IkPlugin::on_initialize()
             
             jinfo("{} received gripper pose: {}", cart->getName(), val);
             
-            if(cart->getName() == "left_ee")
-            {
-                _gripper_map["dagana_1_claw_joint"] = val;
-            }
-            else
-            {
-                _gripper_map["dagana_2_claw_joint"] = val;
-            }
+            // if(cart->getName() == "left_ee")
+            // {
+            //     _gripper_map["dagana_1_claw_joint"] = val;
+            // }
+            // else
+            // {
+            //     _gripper_map["dagana_2_claw_joint"] = val;
+            // }
             
-            _model->setJointPosition(_gripper_map);
+            // _model->setJointPosition(_gripper_map);
         };
         // subscriber for gripper command
         subscribe<double>(fmt::format("~/{}/gripper/command", tname),
